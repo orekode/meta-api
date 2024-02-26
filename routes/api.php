@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +16,27 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+/** Routes for user authentication */
+
+Route::controller(LoginController::class)->group(function () {
+    Route::get('/login', 'notLoggedin')->name('login');
+    Route::post('/login', 'login');
+    Route::post('/logout', 'logout')->middleware('auth:sanctum');
 });
+
+/**      end-authentication      */
+
+
+Route::resource('pageContents', PageContentsController::class);
+Route::resource('donations', DonationController::class);
+
+Route::controller(PaymentController::class)->group(function () {
+    Route::post('/pay/oneTime', 'oneTimePayment');
+    Route::post('/pay/confirm', 'confirmPayment');
+    Route::post('/pay/monthly/{client}/{customer}', 'recurringPayment');
+});
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/user', [LoginController::class, 'user']);
+});
+
